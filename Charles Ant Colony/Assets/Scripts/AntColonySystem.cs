@@ -1,38 +1,41 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Unity.Burst;
-using Unity.Jobs;
-using Unity.Collections;
+using Random = Unity.Mathematics.Random;
+
 
 namespace AntColony
 {
 	public class AntColonySystem : JobComponentSystem
 	{
-		struct AntColonyJob : IJobProcessComponentData<Ant, Position>
-		{
-			public float DeltaTime;
-			public Unity.Mathematics.Random random;
+		Random r;
 
-			public void Execute(ref Ant test, ref Position pos)
-			{
-				pos.Value.x += random.NextInt(-5, 5) * test.speed / 2 * DeltaTime;
-				pos.Value.z += random.NextInt(-5, 5) * test.speed / 2 * DeltaTime;
-			}
+		public AntColonySystem() : base()
+		{
+			r = new Random( 7778 );
 		}
 
-		protected override JobHandle OnUpdate(JobHandle inputDependencies)
-		{
-			var job = new AntColonyJob()
-			{
-				DeltaTime = Time.deltaTime,
-				random = new Unity.Mathematics.Random(1)
-			};
+		[Unity.Burst.BurstCompile]
+		struct AntJob : IJobForEach<Translation, Ant>
+        {
+            public float deltaTime;
+    
+            // The [ReadOnly] attribute tells the job scheduler that this job will not write to rotSpeed
+            public void Execute(ref Translation t, [ReadOnly] ref Ant a)
+            {
+                t.Value.x += a.direction.x * a.speed * deltaTime;
+				t.Value.z += a.direction.z * a.speed * deltaTime;
+            }
+		}
 
-			return job.Schedule(this, inputDependencies);
+		protected override JobHandle OnUpdate( JobHandle inputDependencies )
+		{
+			AntJob job = new AntJob() { deltaTime = Time.deltaTime };
+			return job.Schedule( this, inputDependencies );
 		}
 	}
 }
