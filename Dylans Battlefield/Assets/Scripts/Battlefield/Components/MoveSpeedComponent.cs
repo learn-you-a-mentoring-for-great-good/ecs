@@ -2,12 +2,12 @@
 
 using Unity.Entities;
 
-namespace ECS
+namespace Battlefield
 {
     [Serializable]
     public struct MoveSpeed : IComponentData
     {
-        public float Value;
+        public int Value;
     }
 
     public class MoveSpeedComponent : ComponentDataProxy<MoveSpeed> { }
