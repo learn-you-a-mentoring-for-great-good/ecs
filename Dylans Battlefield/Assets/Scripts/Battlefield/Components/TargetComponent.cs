@@ -2,7 +2,7 @@
 
 using Unity.Entities;
 
-namespace ECS
+namespace Battlefield
 {
     [Serializable]
     public struct Target : IComponentData
