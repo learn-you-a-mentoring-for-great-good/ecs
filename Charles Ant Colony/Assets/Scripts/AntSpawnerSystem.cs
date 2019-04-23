@@ -5,8 +5,16 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public class HelloSpawnerSystem : JobComponentSystem
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
+
+namespace AntColony
 {
+public class AntSpawnerSystem : JobComponentSystem
+{
+    static Random s_random;
+	static bool s_randomIsSeeded;
+
 	// BeginInitializationEntityCommandBufferSystem is used to create a command buffer which will then be played back
 	// when that barrier system executes.
 	// Though the instantiation command is recorded in the SpawnJob, it's not actually processed (or "played back")
@@ -29,17 +37,18 @@ public class HelloSpawnerSystem : JobComponentSystem
 		public void Execute(Entity entity, int index, [ReadOnly] ref AntSpawner spawner,
 			[ReadOnly] ref LocalToWorld location)
 		{
-			for (int x = 0; x < spawner.CountX; x++)
+			for (int x = 0; x < spawner.Count; x++)
 			{
-				for (int y = 0; y < spawner.CountY; y++)
-				{
-					var instance = CommandBuffer.Instantiate(spawner.Prefab);
+				
+				var instance = CommandBuffer.Instantiate(spawner.Prefab);
+				InitRandom();
+				float randomSpeed = s_random.NextFloat(1f, 5f);
 
-					// Place the instantiated in a grid with some noise
-					var position = math.transform(location.Value,
-						new float3(x * 1.3F, noise.cnoise(new float2(x, y) * 0.21F) * 2, y * 1.3F));
-					CommandBuffer.SetComponent(instance, new Translation { Value = position });
-				}
+				float randomAngle = s_random.NextFloat(0f, (float)(2.0 * System.Math.PI));
+				Vector3 randomDirection = new Vector3(Mathf.Cos(randomAngle), 0f, Mathf.Sin(randomAngle));
+
+				CommandBuffer.SetComponent(instance, new Translation { Value = float3.zero });
+				CommandBuffer.SetComponent(instance, new Ant { speed = randomSpeed, direction = randomDirection });
 			}
 
 			CommandBuffer.DestroyEntity(entity);
@@ -65,4 +74,14 @@ public class HelloSpawnerSystem : JobComponentSystem
 
 		return job;
 	}
+
+	static void InitRandom()
+	{
+		if (!s_randomIsSeeded)
+		{
+			s_randomIsSeeded = true;
+			s_random = new Random(5555);
+		}
+	}
+}
 }
