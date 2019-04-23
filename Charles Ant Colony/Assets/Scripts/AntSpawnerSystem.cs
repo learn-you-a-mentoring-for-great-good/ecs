@@ -47,7 +47,7 @@ public class AntSpawnerSystem : JobComponentSystem
 				float randomAngle = s_random.NextFloat(0f, (float)(2.0 * System.Math.PI));
 				Vector3 randomDirection = new Vector3(Mathf.Cos(randomAngle), 0f, Mathf.Sin(randomAngle));
 
-				CommandBuffer.SetComponent(instance, new Translation { Value = float3.zero });
+				CommandBuffer.SetComponent(instance, new Translation { Value = math.transform(location.Value, new float3(1, 1, 1)) });
 				CommandBuffer.SetComponent(instance, new Ant { speed = randomSpeed, direction = randomDirection });
 			}
 
