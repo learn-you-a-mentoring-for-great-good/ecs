@@ -6,15 +6,11 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 using UnityEngine;
-using Random = Unity.Mathematics.Random;
 
 namespace AntColony
 {
-public class AntSpawnerSystem : JobComponentSystem
+public class PheromoneSpawnerSystem : JobComponentSystem
 {
-    static Random s_random;
-	static bool s_randomIsSeeded;
-
 	// BeginInitializationEntityCommandBufferSystem is used to create a command buffer which will then be played back
 	// when that barrier system executes.
 	// Though the instantiation command is recorded in the SpawnJob, it's not actually processed (or "played back")
@@ -30,28 +26,24 @@ public class AntSpawnerSystem : JobComponentSystem
 		m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
 	}
 
-	struct SpawnJob : IJobForEachWithEntity<AntSpawner, Translation>
+	struct SpawnJob : IJobForEachWithEntity<PheromoneSpawner, Translation>
 	{
+        public float DeltaTime;
 		public EntityCommandBuffer CommandBuffer;
 
-		public void Execute(Entity entity, int index, [ReadOnly] ref AntSpawner spawner,
+		public void Execute(Entity entity, int index, ref PheromoneSpawner spawner,
 			[ReadOnly] ref Translation translation)
 		{
-			for (int x = 0; x < spawner.Count; x++)
-			{
-				
-				var instance = CommandBuffer.Instantiate(spawner.Prefab);
-				InitRandom();
-				float randomSpeed = s_random.NextFloat(1f, 5f);
+            spawner.Timer -= DeltaTime;
 
-				float randomAngle = s_random.NextFloat(0f, (float)(2.0 * System.Math.PI));
-				Vector3 randomDirection = new Vector3(Mathf.Cos(randomAngle), 0f, Mathf.Sin(randomAngle));
+            if(spawner.Timer <= 0.0f)
+            {
+                var instance = CommandBuffer.Instantiate(spawner.Prefab);
+                CommandBuffer.SetComponent(instance, new Translation { Value = translation.Value });
+                CommandBuffer.SetComponent(instance, new Pheromone { duration = 5.0f });
 
-				CommandBuffer.SetComponent(instance, new Translation { Value = translation.Value });
-				CommandBuffer.SetComponent(instance, new Ant { speed = randomSpeed, direction = randomDirection });
-			}
-
-			CommandBuffer.DestroyEntity(entity);
+                spawner.Timer = 0.25f;
+            }
 		}
 	}
 
@@ -63,7 +55,8 @@ public class AntSpawnerSystem : JobComponentSystem
 		// Schedule the job that will add Instantiate commands to the EntityCommandBuffer.
 		var job = new SpawnJob
 		{
-			CommandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer()
+			CommandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer(),
+            DeltaTime = Time.deltaTime
 		}.ScheduleSingle(this, inputDeps);
 
 
@@ -73,15 +66,6 @@ public class AntSpawnerSystem : JobComponentSystem
 		m_EntityCommandBufferSystem.AddJobHandleForProducer(job);
 
 		return job;
-	}
-
-	static void InitRandom()
-	{
-		if (!s_randomIsSeeded)
-		{
-			s_randomIsSeeded = true;
-			s_random = new Random(5555);
-		}
 	}
 }
 }
