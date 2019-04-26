@@ -2,7 +2,6 @@
 
 public struct AntSpawner : IComponentData
 {
-	public int CountX;
-	public int CountY;
+	public int Count;
 	public Entity Prefab;
 }
