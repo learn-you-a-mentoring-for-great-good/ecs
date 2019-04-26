@@ -15,6 +15,14 @@ namespace Battlefield
             public void Execute(ref Target target, [ReadOnly] ref Translation position, [ReadOnly] ref Rotation rotation)
             {
                 // TODO: set target
+                if (true)
+                {
+                    target.Value = new float3();
+                }
+                else
+                {
+                    target.Value.y = -2f;
+                }
             }
         }
 

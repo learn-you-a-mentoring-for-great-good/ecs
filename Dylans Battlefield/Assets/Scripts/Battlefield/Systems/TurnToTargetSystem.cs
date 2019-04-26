@@ -14,13 +14,12 @@ namespace Battlefield
         {
             public void Execute(ref Rotation rotation, [ReadOnly] ref Translation position, [ReadOnly] ref Target target )
             {
-                Entity targetValue = target.Value;
+                float3 targetPosition = target.Value;
 
-                if (targetValue != Entity.Null)
+                // TODO: find better way to determine if target is set
+                if (targetPosition.y > -1f)
                 {
-                    float3 targetPosition = new float3(); // TODO: Fix this
-
-                    float3 direction = math.normalize(position.Value - targetPosition);
+                    float3 direction = math.normalize(targetPosition - position.Value);
 
                     quaternion rotationToHave = quaternion.LookRotation(direction, math.up());
 
