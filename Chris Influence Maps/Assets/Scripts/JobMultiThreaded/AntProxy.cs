@@ -2,7 +2,7 @@
 using Unity.Entities;
 using Random = Unity.Mathematics.Random;
 
-namespace AntColony
+namespace JobMultiThreaded
 {
 	[System.Serializable]
 	public struct Ant : IComponentData

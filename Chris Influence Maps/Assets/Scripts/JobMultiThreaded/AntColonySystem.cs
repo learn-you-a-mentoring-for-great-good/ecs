@@ -8,7 +8,7 @@ using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
 
-namespace AntColony
+namespace JobMultiThreaded
 {
 	public class AntColonySystem : JobComponentSystem
 	{
