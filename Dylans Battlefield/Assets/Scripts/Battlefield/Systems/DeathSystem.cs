@@ -1,5 +1,4 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -11,7 +10,6 @@ namespace Battlefield
 {
     public class DeathSystem : JobComponentSystem
     {
-		[BurstCompile]
 		struct DeathJob : IJobForEachWithEntity<Health>
         {
             public void Execute(Entity entity, int index, [ReadOnly] ref Health health)
