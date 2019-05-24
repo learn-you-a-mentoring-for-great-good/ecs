@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -10,7 +11,8 @@ namespace Battlefield
 {
     public class TurnToTargetSystem : JobComponentSystem
     {
-        struct TurnJob : IJobForEach<Rotation, Translation, Target>
+		[BurstCompile]
+		struct TurnJob : IJobForEach<Rotation, Translation, Target>
         {
             public void Execute(ref Rotation rotation, [ReadOnly] ref Translation position, [ReadOnly] ref Target target )
             {

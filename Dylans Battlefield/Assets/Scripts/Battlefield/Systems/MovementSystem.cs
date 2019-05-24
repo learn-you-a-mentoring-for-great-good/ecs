@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -10,6 +11,7 @@ namespace Battlefield
 {
     public class MovementSystem : JobComponentSystem
     {
+		[BurstCompile]
         struct MovementJob : IJobForEach<Translation, Rotation, MoveSpeed>
         {
             public float deltaTime;

@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -12,7 +13,8 @@ namespace Battlefield
     {
         Unity.Mathematics.Random _rng = new Unity.Mathematics.Random(1u);
 
-        struct TargetJob : IJobForEachWithEntity<Target, Translation, Rotation>
+		[BurstCompile]
+		struct TargetJob : IJobForEachWithEntity<Target, Translation, Rotation>
         {
             static readonly float3 MIN = new float3(-10f, 0f, -10f);
             static readonly float3 MAX = new float3(10f, 0f, 10f);
